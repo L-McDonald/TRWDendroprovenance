@@ -96,14 +96,30 @@ ggplot() +
         aes(x = I(0.95), y = I(0.95), label = species),
         hjust = 1,
         vjust = 1,
-        fontface = "bold.italic"
+        family = "serif",
+        fontface = "bold.italic",
+        size = 7,
+        size.unit = "pt"
     ) +
     facet_wrap(~species) +
     theme_bw() +
-    theme(strip.text = element_blank(), axis.title = element_blank()) +
+    theme(
+        text = element_text(family = "serif"),
+        strip.text = element_blank(),
+        axis.title = element_blank(),
+        axis.text = element_text(size = 6)
+    ) +
     coord_sf(
         crs = 3035,
         xlim = c(plot_limits["xmin"], plot_limits["xmax"]),
         ylim = c(plot_limits["ymin"], plot_limits["ymax"]),
         expand = FALSE
     )
+
+ggsave(
+    "Figures/SpeciesDistributionRanges.png",
+    dpi = 300,
+    width = 190,
+    height = 100,
+    units = "mm"
+)
