@@ -120,6 +120,6 @@ ggsave(
     "Figures/SpeciesDistributionRanges.png",
     dpi = 300,
     width = 190,
-    height = 100,
+    height = 120,
     units = "mm"
 )
