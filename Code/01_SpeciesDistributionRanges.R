@@ -13,7 +13,7 @@ unzip(
 # LOAD COAST--------------------------------------------------------------------
 coast <- ne_countries(scale = 10, continent = c("Africa", "Europe", "Asia")) %>%
     st_make_valid() %>%
-    st_crop(c(xmin = -15, xmax = 90, ymin = 20, ymax = 90)) %>%
+    st_crop(c(xmin = -25, xmax = 90, ymin = 10, ymax = 90)) %>%
     st_geometry()
 
 
@@ -26,6 +26,8 @@ pe <- read_sf(
 ) %>%
     st_intersection(coast) %>%
     st_make_valid() %>%
+    st_union() %>%
+    st_sf() %>%
     mutate(species = "Quercus petraea")
 
 # Quercus robur
@@ -35,6 +37,8 @@ ro <- read_sf(
 ) %>%
     st_intersection(coast) %>%
     st_make_valid() %>%
+    st_union() %>%
+    st_sf() %>%
     mutate(species = "Quercus robur")
 
 # Quercus cerris
@@ -44,6 +48,8 @@ ce <- read_sf(
 ) %>%
     st_intersection(coast) %>%
     st_make_valid() %>%
+    st_union() %>%
+    st_sf() %>%
     mutate(species = "Quercus cerris")
 
 # Quercus frainetto
@@ -53,6 +59,8 @@ fr <- read_sf(
 ) %>%
     st_intersection(coast) %>%
     st_make_valid() %>%
+    st_union() %>%
+    st_sf() %>%
     mutate(species = "Quercus frainetto")
 
 # merge all SDRs
@@ -71,6 +79,31 @@ st_write(merged, "Data/SpeciesDistributionRanges/QURO_QUPE_QUCE_QUFR.gpkg")
 # BOUNDING BOX------------------------------------------------------------------
 st_bbox(merged)
 
+
+# PLOT SPECIES DISTRIBUTION RANGES----------------------------------------------
+plot_limits <- st_bbox(merged) %>%
+    st_as_sfc() %>%
+    st_transform(3035) %>%
+    st_bbox()
+
 ggplot() +
-    geom_sf(data = coast) +
-    geom_sf(data = x, fill = "steelblue")
+    geom_sf(data = coast, fill = "grey95", colour = NA) +
+    geom_sf(data = merged, linetype = "longdash", fill = "grey80", stroke = 2) +
+    geom_sf(data = all_species, fill = "steelblue") +
+    geom_sf(data = coast, fill = NA) +
+    geom_text(
+        data = all_species,
+        aes(x = I(0.95), y = I(0.95), label = species),
+        hjust = 1,
+        vjust = 1,
+        fontface = "bold.italic"
+    ) +
+    facet_wrap(~species) +
+    theme_bw() +
+    theme(strip.text = element_blank(), axis.title = element_blank()) +
+    coord_sf(
+        crs = 3035,
+        xlim = c(plot_limits["xmin"], plot_limits["xmax"]),
+        ylim = c(plot_limits["ymin"], plot_limits["ymax"]),
+        expand = FALSE
+    )
