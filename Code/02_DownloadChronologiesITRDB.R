@@ -1,3 +1,5 @@
+# ORIGINAL SCRIPT FROM: https://github.com/chguiterman/read_ITRDB_rawData/tree/v1.1.0
+
 library(tidyverse)
 library(dplR)
 library(httr)
@@ -5,6 +7,16 @@ library(jsonlite)
 library(lubridate)
 library(furrr)
 library(sf)
+library(rnaturalearth)
+
+
+# LOAD COAST and SPECIES DISTRIBUTION RANGE-------------------------------------
+coast <- ne_countries(scale = 10, continent = c("Africa", "Europe", "Asia")) %>%
+  st_make_valid() %>%
+  st_crop(c(xmin = -25, xmax = 90, ymin = 10, ymax = 90)) %>%
+  st_geometry()
+
+range <- read_sf("Data/SpeciesDistributionRanges/QURO_QUPE_QUCE_QUFR_QUPU.gpkg")
 
 
 # ITRDB SEARCH PARAMETERS-------------------------------------------------------
@@ -17,7 +29,7 @@ search_params <- list(
   maxLat = 62,
   minLon = -10,
   maxLon = 60,
-  species = "QUCE|QUFR|QUPE|QURO",
+  species = "QUCE|QUFR|QUPE|QURO|QUPU",
   metadataOnly = "true"
 )
 
@@ -195,16 +207,84 @@ check_files <- all_rwl %>%
 # 4. Output data -------------------------------------------------------------
 
 # save rwl files in folder
-
 out_dat <- all_rwl %>%
   filter(!NOAAStudyId %in% check_files$NOAAStudyId) %>%
-  inner_join(itrdb_rawmeas_files, by = "NOAAStudyId")
-walk2(
-  out_dat$RWL,
-  out_dat$linkText,
-  ~ write.tucson(.x, str_glue("Data/RWL_ITRDB/{.y}"))
-)
+  left_join(itrdb_site_meta, by = "NOAAStudyId") %>%
+  select(
+    -NOAAStudyId,
+    investigators,
+    -date_type,
+    -reference,
+    -doi,
+    -contr_year,
+    -NOAASiteId,
+    -url
+  ) %>%
+  mutate(
+    length = as.integer((last_year - first_year) + 1),
+    n_series = map_int(RWL, ncol)
+  ) %>%
+  select(
+    site_code = studyCode,
+    site_name = siteName,
+    start = first_year,
+    end = last_year,
+    length,
+    n_series,
+    species,
+    lat = latitude,
+    lon = longitude,
+    elev = elevation,
+    rwl = RWL
+  ) %>%
+  filter(end >= 1900)
+
+
+# walk2(
+#   out_dat$RWL,
+#   out_dat$linkText,
+#   ~ write.tucson(.x, str_glue("Data/RWL_ITRDB/{.y}"))
+# )
 
 # Save metadata files
-#write_csv(itrdb_rawmeas_files, "Data/ITRDB_raw_measurement_files.csv")
-write_csv(itrdb_site_meta, "Data/ITRDB_site_metadata.csv")
+# write_csv(itrdb_rawmeas_files, "Data/ITRDB_raw_measurement_files.csv")
+# write_csv(itrdb_site_meta, "Data/ITRDB_site_metadata.csv")
+
+# PLOT CHRONOLOGIES-------------------------------------------------------------
+plot_limits <- st_bbox(range) %>%
+  st_as_sfc() %>%
+  st_transform(3035) %>%
+  st_bbox()
+
+plot_crn <- out_dat %>%
+  st_as_sf(coords = c("lon", "lat"), crs = 4326)
+
+ggplot() +
+  geom_sf(data = coast, fill = "grey95") +
+  geom_sf(data = range, fill = "grey80", linetype = "longdash") +
+  geom_sf(data = coast, fill = NA) +
+  geom_sf(data = plot_crn, aes(colour = species)) +
+  coord_sf(
+    crs = 3035,
+    xlim = c(plot_limits["xmin"], plot_limits["xmax"]),
+    ylim = c(plot_limits["ymin"], plot_limits["ymax"]),
+    expand = FALSE
+  ) +
+  theme_bw() +
+  theme(
+    panel.background = element_rect(fill = "azure1"),
+    legend.position = "inside",
+    legend.justification.inside = c(1, 1),
+    legend.position.inside = c(1, 1),
+    legend.background = element_rect(fill = NA),
+    legend.box.background = element_rect(colour = NA, fill = NA),
+    legend.key = element_rect(fill = NA)
+  )
+
+
+# FILTER AND SAVE SELECTED CHRONOLOGIES-----------------------------------------
+
+save_dat <- out_dat %>% 
+  mutate(source = "ITRDB", .before = everything())
+
+saveRDS(save_dat, "Data/InitialChronologies_ITRDB.Rdata")
