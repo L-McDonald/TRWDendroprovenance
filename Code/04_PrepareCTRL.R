@@ -31,6 +31,7 @@ ctrl <- map_dfr(rwl_files, rwl_tibble) %>%
     start,
     end,
     length,
+    n_series,
     species,
     lat,
     lon,
@@ -57,7 +58,8 @@ ctrl_elev <- ctrl %>%
     .after = lon
   ) %>% 
   select(-elev_initial, -elev_final) %>% 
-  st_drop_geometry()
+  st_drop_geometry() %>% 
+  mutate(source = "CTRL", .before = everything())
 
 
 # SAVE CHRONOLOGIES
