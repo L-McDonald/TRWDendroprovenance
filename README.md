@@ -20,3 +20,11 @@ with metadata.
 
 ### 03_RemoveHistorical.R
 Removes historical sequences from the ITRDB chronologies.
+
+### 04_PrepareCTRL.R
+Reads the rwl files for the CTRL chronologies and saves as a nested tibble with
+metadata.
+
+### 05_PrepareWazny.R
+Reads the rwl files for the Wazny chronologies and saves as a nested tibble with
+metadata.
