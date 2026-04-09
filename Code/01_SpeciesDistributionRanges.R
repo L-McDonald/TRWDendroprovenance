@@ -63,17 +63,29 @@ fr <- read_sf(
     st_sf() %>%
     mutate(species = "Quercus frainetto")
 
+# Quercus pubescens
+pu <- read_sf(
+    "Data/SpeciesDistributionRanges/chorological_maps_dataset/Quercus pubescens/shapefiles/",
+    layer = "quercus_pubescens_plg"
+) %>%
+    st_intersection(coast) %>%
+    st_make_valid() %>%
+    st_union() %>%
+    st_sf() %>%
+    mutate(species = "Quercus pubescens")
+
 # merge all SDRs
-all_species <- bind_rows(pe, ro, ce, fr)
+all_species <- bind_rows(pe, ro, ce, fr, pu)
 
 merged <- st_union(c(
     st_geometry(pe),
     st_geometry(ro),
     st_geometry(ce),
-    st_geometry(fr)
+    st_geometry(fr),
+    st_geometry(pu)
 ))
 
-st_write(merged, "Data/SpeciesDistributionRanges/QURO_QUPE_QUCE_QUFR.gpkg")
+st_write(merged, "Data/SpeciesDistributionRanges/QURO_QUPE_QUCE_QUFR_QUPU.gpkg")
 
 
 # BOUNDING BOX------------------------------------------------------------------
@@ -101,7 +113,7 @@ ggplot() +
         size = 7,
         size.unit = "pt"
     ) +
-    facet_wrap(~species) +
+    facet_wrap(~species, ncol = 2) +
     theme_bw() +
     theme(
         text = element_text(family = "serif"),
@@ -120,6 +132,6 @@ ggsave(
     "Figures/SpeciesDistributionRanges.png",
     dpi = 300,
     width = 190,
-    height = 120,
+    height = 170,
     units = "mm"
 )
