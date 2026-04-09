@@ -285,6 +285,8 @@ ggplot() +
 # FILTER AND SAVE SELECTED CHRONOLOGIES-----------------------------------------
 
 save_dat <- out_dat %>% 
+  filter(site_code != "GREE006") %>% 
+  filter(site_code != "TURK028") %>% 
   mutate(source = "ITRDB", .before = everything())
 
 saveRDS(save_dat, "Data/InitialChronologies_ITRDB.Rdata")
