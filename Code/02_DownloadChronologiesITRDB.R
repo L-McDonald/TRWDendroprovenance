@@ -168,7 +168,7 @@ read_itrdb_rwl <- function(first_year, fileUrl) {
 # clean up
 rm(in_list, itrdb_list, resp, p_dat, parsed)
 
-# Read rwls from the HTTPS server
+# Read rwls from the HTTPS server (this may take some time)
 all_rwl <- itrdb_rawmeas_files %>%
   transmute(
     NOAAStudyId,
@@ -206,7 +206,7 @@ check_files <- all_rwl %>%
 
 # 4. Output data -------------------------------------------------------------
 
-# save rwl files in folder
+# generate output tibble and filter to end after 1900 
 out_dat <- all_rwl %>%
   filter(!NOAAStudyId %in% check_files$NOAAStudyId) %>%
   left_join(itrdb_site_meta, by = "NOAAStudyId") %>%
@@ -283,6 +283,8 @@ ggplot() +
 
 
 # FILTER AND SAVE SELECTED CHRONOLOGIES-----------------------------------------
+
+# remove chronologies which are also in CTRL dataset
 
 save_dat <- out_dat %>% 
   filter(site_code != "GREE006") %>% 
