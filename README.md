@@ -9,7 +9,8 @@ provenance of unknown samples.
 Various functions used throughout the project
 
 ### 01_SpeciesDistributionRanges.R
-Plots the species distribution ranges for Quercus robur, Q. petraea, Q. cerris, Q. frainetto, and Q. pubescens from
+Plots the species distribution ranges for Quercus robur, Q. petraea, Q. cerris, 
+Q. frainetto, and Q. pubescens from
 [EuForGen](https://data.mendeley.com/datasets/hr5h2hcgg4/19). Determines the
 maximum extent of species occurrence for downloading from the ITRDB.
 
