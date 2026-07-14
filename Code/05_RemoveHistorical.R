@@ -36,7 +36,7 @@ itrdb_clean <- itrdb %>%
     n_series = map_int(rwl, ncol)
   )
 
-saveRDS(itrdb_clean, "Data/04_CleanedChronologies_ITRDB.Rdata")
+saveRDS(itrdb_clean, "Data/04_HistoricalSeriesRemoved_ITRDB.Rdata")
 
 
 # REPLOT INDIVIDUAL SERIES FROM EACH CHRONOLOGY---------------------------------
