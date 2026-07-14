@@ -18,13 +18,16 @@ maximum extent of species occurrence for downloading from the ITRDB.
 Downloads all ITRDB chronologies of the above species and saves RWL files along
 with metadata.
 
-### 03_RemoveHistorical.R
-Removes historical sequences from the ITRDB chronologies.
-
-### 04_PrepareCTRL.R
+### 03_PrepareCTRL.R
 Reads the rwl files for the CTRL chronologies and saves as a nested tibble with
 metadata.
 
-### 05_PrepareWazny.R
+### 04_PrepareWazny.R
 Reads the rwl files for the Wazny chronologies and saves as a nested tibble with
 metadata.
+
+### 05_RemoveHistorical.R
+Removes historical sequences from the ITRDB chronologies.
+
+### 06_MergeDatasets.R
+Merges the ITRDB, CTRL, and Wazny chronologies into a single nested tibble.
