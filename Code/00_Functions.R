@@ -18,3 +18,17 @@ rwl_tibble <- function(path) {
   metadata %>%
     mutate(rwl = list(rwl_data))
 }
+
+
+# REMOVE_HISTORICAL---------------------------------------------------------------
+# removes series whose most recent ring is before min_last_year, then trims any
+# leading/trailing years left with no data across all remaining series.
+remove_historical <- function(rwl, min_last_year = 1900) {
+  # identify series where most recent year is before min_last_year and remove
+  keep <- summary(rwl)$last >= min_last_year
+  rwl <- rwl[, keep, drop = FALSE]
+
+  # trim rows with no data across all remaining series
+  has_data <- rowSums(!is.na(rwl)) > 0
+  rwl[min(which(has_data)):max(which(has_data)), , drop = FALSE]
+}
