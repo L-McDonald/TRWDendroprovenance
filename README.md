@@ -30,4 +30,5 @@ metadata.
 Removes historical sequences from the ITRDB chronologies.
 
 ### 06_MergeDatasets.R
-Merges the ITRDB, CTRL, and Wazny chronologies into a single nested tibble.
+Merges the ITRDB, CTRL, and Wazny chronologies into a single nested tibble. Also
+adds columns for coordinates in EPSG 3035.
