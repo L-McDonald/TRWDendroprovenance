@@ -32,3 +32,9 @@ Removes historical sequences from the ITRDB chronologies.
 ### 06_MergeDatasets.R
 Merges the ITRDB, CTRL, and Wazny chronologies into a single nested tibble. Also
 adds columns for coordinates in EPSG 3035.
+
+### 07_CleanChronologies.R
+Cleans the merged dataset in three steps: (1) checks for and removes chronologies 
+with coordinates located at sea, (2) combines chronologies located within 1 km of 
+each other, (3) checks for and removes problem series/chronologies according to 
+the method of van Sluijs et al. 
