@@ -1,0 +1,87 @@
+library(rnaturalearth)
+library(tidyverse)
+library(sf)
+library(dplR)
+
+
+source("Code/00_Functions.R")
+
+
+# LOAD DATA---------------------------------------------------------------------
+rwl <- readRDS("Data/05_InitialChronologies_All.Rdata")
+
+coast <- ne_countries(scale = 10, continent = c("Africa", "Europe", "Asia")) %>%
+    st_make_valid() %>%
+    st_crop(c(xmin = -25, xmax = 90, ymin = 10, ymax = 90)) %>%
+    st_geometry() %>%
+    st_transform(3035)
+
+
+# CHECK FOR AND REMOVE CHRONOLOGIES LOCATED AT SEA------------------------------
+rwl_sea <- rwl %>%
+  st_as_sf(coords = c("x_3035", "y_3035"), crs = 3035, remove = FALSE) %>%
+  filter(apply(st_intersects(., coast, sparse = FALSE), 1, any))
+
+
+# COMBINE SAME-SPECIES CHRONOLOGIES WITHIN 1 KM OF EACH OTHER-------------------
+
+## Identify sites of the same species within 1 km of each other
+dist_mat <- st_distance(rwl_sea)
+diag(dist_mat) <- NA
+
+close_idx <- which(as.matrix(dist_mat) < units::set_units(1000, "m"), arr.ind = TRUE)
+close_idx <- close_idx[close_idx[, 1] < close_idx[, 2], , drop = FALSE]
+
+close_pairs <- tibble(
+  i = close_idx[, 1],
+  j = close_idx[, 2],
+  site_a = rwl_sea$site_code[i],
+  site_b = rwl_sea$site_code[j],
+  species_a = rwl_sea$species[i],
+  species_b = rwl_sea$species[j],
+  same_species = species_a == species_b,
+  dist_m = as.numeric(dist_mat[close_idx])
+)
+
+## Use tidygraph to identify clusters where more than two chronologies are close
+## together and the same species.
+clusters <- close_pairs %>% 
+  filter(same_species) %>%
+  select(site_a, site_b) %>%
+  tidygraph::as_tbl_graph(directed = FALSE) %>%
+  tidygraph::activate(nodes) %>%
+  tidygraph::mutate(cluster = tidygraph::group_components()) %>%
+  as_tibble() %>%
+  rename(site_code = name) %>%
+  group_by(cluster) %>%
+  summarise(members = list(site_code)) %>% 
+  ungroup()
+
+## merge each cluster into a single chronology
+merged_rows <- clusters %>%
+  mutate(
+    members_df = map(members, ~ rwl_sea %>% filter(site_code %in% .x)),
+    merged = map(members_df, merge_cluster)
+  ) %>%
+  pull(merged) %>%
+  bind_rows()
+
+merged_codes <- unlist(clusters$members)
+
+rwl_merged_sites <- rwl_sea %>%
+  filter(!site_code %in% merged_codes) %>%
+  mutate(merged_from = NA_character_) %>%
+  bind_rows(merged_rows) %>%
+  arrange(source, site_code)
+
+
+# CHECK FOR PROBLEM SERIES------------------------------------------------------
+## removes problem series and flags chronologies which have problems with more
+## than half of their series
+rwl_clean <- remove_problem_series(rwl_merged_sites) %>% 
+    filter(problem != TRUE) %>%
+    select(-problem, -series_removed, -merged_from)
+
+
+# SAVE CLEANED CHRONOLOGIES-----------------------------------------------------
+saveRDS(rwl_clean, "Data/06_CleanedChronologies.Rdata")
