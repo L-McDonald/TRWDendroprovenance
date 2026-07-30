@@ -78,9 +78,28 @@ rwl_merged_sites <- rwl_sea %>%
 # CHECK FOR PROBLEM SERIES------------------------------------------------------
 ## removes problem series and flags chronologies which have problems with more
 ## than half of their series
-rwl_clean <- remove_problem_series(rwl_merged_sites) %>% 
+rwl_checked <- remove_problem_series(rwl_merged_sites) %>% 
     filter(problem != TRUE) %>%
     select(-problem, -series_removed, -merged_from)
+
+
+# FINAL CLEANING----------------------------------------------------------------
+## remove chronologies shorter than 40 years (cf Fowler and Bridge 2017 on 
+## insensitivity to series length). Also remove specific series which cannot be
+## detrended using spline
+rwl_clean <- rwl_checked %>% 
+  filter(length >= 40) %>% 
+  mutate(rwl = map(rwl, ~ remove_series(.x, c(
+    "BAF-4A", "KDR0110A", "KDR0110B", "KDR0228A",
+    "ZALIOJ05", "PAGEGI10", "Q20A", "Q20B"
+  )))) %>%
+  mutate(
+    n_series = map_int(rwl, ncol),
+    length = map_int(rwl, nrow),
+    start = map_int(rwl, ~ min(as.numeric(rownames(.x)))),
+    end = map_int(rwl, ~ max(as.numeric(rownames(.x))))
+  ) 
+
 
 
 # SAVE CLEANED CHRONOLOGIES-----------------------------------------------------
