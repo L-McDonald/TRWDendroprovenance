@@ -40,4 +40,12 @@ each other, (3) checks for and removes problem series/chronologies according to
 the method of van Sluijs et al., (4) removes sites with chronologies shorter than 
 40 years and also removes some specific series which could not be detrended using
 the spline approach due to negative values. Tests showed that removing these series
-had negligible effect on the indices (calculated in script 08). 
+had negligible effect on the indices (calculated in script 08).
+
+### 08_CalculateChronologies.R
+Detrends the rwl measurements using a smoothing spline. Then calculates three
+mean chronologies: std, res, and ars. ars is Cook's ARSTAN chronology. The ring
+width indices for six sites (DEU304, DEU306, DEU312, DEU314, SWIT232, and SWIT317)
+have an AR model order of zero which prevents ars being calculated. For these an 
+AR model of order 1 was fitted which tests showed resulted in a time series very
+closely correlated with the std chronology.

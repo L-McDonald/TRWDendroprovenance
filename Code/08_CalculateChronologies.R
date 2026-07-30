@@ -1,0 +1,32 @@
+library(tidyverse)
+library(dplR)
+
+source("Code/00_Functions.R")
+
+
+# LOAD DATA---------------------------------------------------------------------
+rwl <- readRDS("Data/06_CleanedChronologies.Rdata")
+
+
+# DETREND CHRONOLOGIES----------------------------------------------------------
+rwi <- rwl_clean %>%
+  mutate(
+    rwi = map(rwl, ~ detrend(.x, method = "Spline", make.plot = FALSE))
+  )
+
+saveRDS(rwi, "Data/07_DetrendedChronologies.Rdata")
+
+
+# CALCULATE CHRONOLOGIES--------------------------------------------------------
+crn <- rwi %>% 
+  mutate(
+    chronologies = map(
+      rwi,
+      ~ chron.ars.mod(.x, verbose = FALSE, prewhitenMethod = "ar.yw")
+    ),
+    crn = map(chronologies, "chronologies"),
+    forcedAR = map_lgl(chronologies, "forcedAR")
+  ) %>% 
+  select(-chronologies)
+
+saveRDS(crn, "Data/08_CalculatedChronologies.Rdata")

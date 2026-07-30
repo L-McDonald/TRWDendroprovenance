@@ -206,3 +206,187 @@ update_metadata <- function(rwl) {
   metadata %>%
     mutate(rwl = list(rwl))
 }
+
+
+# CHRON.ARS.MOD-----------------------------------------------------------------
+# modifies chron.ars from dplR to force an AR model with order 1 when the AIC
+# selected model is order 0. Returns a list with the calculated chronologies and
+# TRUE/FALSE indicating whether the model order was forced or not.
+chron.ars.mod <- function (x, biweight = TRUE, maxLag = 10, firstAICmin = TRUE, 
+    verbose = TRUE, prewhitenMethod = c("ar.yw", "arima.CSS-ML")) 
+{
+    pooledAR <- function(x, maxLag = maxLag, firstAICmin = TRUE) {
+        nYrs <- dim(x)[1]
+        nSeries <- dim(x)[2]
+        x <- scale(x, center = TRUE, scale = FALSE)
+        productSumMat <- matrix(0, maxLag + 1, 1)
+        forcedAR <- FALSE
+        for (k in 0:maxLag) {
+            for (j in 1:nSeries) {
+                for (i in 1:nSeries) {
+                  series <- cbind(x[, j], x[, i])
+                  mask <- which(rowSums(!is.na(series)) == 2)
+                  if (length(mask) == 0) {
+                    break
+                  }
+                  series1 <- x[mask, j]
+                  series2 <- x[mask, i]
+                  if (length(series2) <= k) {
+                    break
+                  }
+                  series2 <- series2[1:(length(series2) - k)]
+                  series2 <- c(rep(NA, k), series2)
+                  mask2 <- which(rowSums(!is.na(cbind(series1, 
+                    series2))) == 2)
+                  if (length(mask2) == 0) {
+                    break
+                  }
+                  productSumMat[k + 1, 1] = productSumMat[k + 
+                    1, 1] + t(series1[mask2]) %*% series2[mask2]
+                }
+            }
+        }
+        productSumMat <- t(productSumMat)
+        r0 <- productSumMat[1, 1]
+        xAcf <- productSumMat/r0
+        A <- acf2AR(xAcf) * -1
+        vp_shortcut <- c(r0, c(r0 - -1 * A %*% matrix(t(productSumMat)[-1, 
+            ])))
+        aic2 <- nYrs * log(vp_shortcut) + 2 * 1:(maxLag + 1)
+        names(aic2) <- paste0("ar(", 0:maxLag, ")")
+        xAcf <- xAcf[1, ]
+        names(xAcf) <- paste0("ar(", 0:maxLag, ")")
+        getFirstMin <- function(y) {
+            if (y[1] < y[2]) 
+                out <- 1
+            else out <- min(which(diff(y) > 0))
+            return(out)
+        }
+        if (firstAICmin) {
+            orderOut <- getFirstMin(aic2) - 1
+        }
+        else {
+            orderOut <- which.min(aic2) - 1
+        }
+        if (orderOut == 0){
+            orderOut <- 1
+            forcedAR <- TRUE
+        }
+        res <- list(ACF = xAcf, ARcoefs = A, aic = aic2, orderOut = orderOut, forcedAR = forcedAR)
+        return(res)
+    }
+    postAR <- function(x, phi) {
+        mask <- is.na(x)
+        x0 <- x
+        x <- x[!mask]
+        xMean <- mean(x)
+        x <- x - xMean
+        nx <- length(x)
+        nPhi <- length(phi)
+        xRev <- rev(x)
+        xRevPad <- c(rep(0, nPhi), xRev)
+        for (i in 1:nx) {
+            for (j in 1:nPhi) {
+                xRevPad[i + nPhi] <- xRevPad[i + nPhi] + phi[j] * 
+                  xRevPad[i + nPhi - j]
+            }
+        }
+        xRevInit <- xRevPad[-c(1:nPhi)]
+        for (i in 1:nPhi) {
+            cntr <- nPhi - i + 1
+            xRevInit[cntr] <- 0
+            for (j in 1:nPhi) {
+                xRevInit[cntr] <- xRevInit[cntr] + phi[j] * xRevInit[cntr + 
+                  j]
+            }
+        }
+        xAR <- c(xRevInit[1:nPhi], x)
+        for (i in 1:length(xRevInit)) {
+            for (j in 1:nPhi) {
+                xAR[i + nPhi] <- xAR[i + nPhi] + phi[j] * xAR[i + 
+                  nPhi - j]
+            }
+        }
+        xAR <- xAR[-c(1:nPhi)]
+        x0[!mask] <- xAR + xMean
+        return(x0)
+    }
+    prewhitenAR <- function(x, p) {
+        mask <- is.na(x)
+        x2 <- x[!mask]
+        out <- ar(x2, aic = FALSE, order.max = p, demean = TRUE)
+        x[!mask] <- out$resid + mean(x2)
+        return(x)
+    }
+    prewhitenARIMA <- function(x, p) {
+        mask <- is.na(x)
+        x2 <- x[!mask]
+        out <- arima(x2, order = c(p, 0, 0), method = "CSS-ML", 
+            optim.control = list(maxit = 1000))
+        x[!mask] <- out$residuals + mean(x2)
+        return(x)
+    }
+    known.prewhitenMethods <- c("ar.yw", "arima.CSS-ML")
+    prewhitenMethod2 <- match.arg(arg = prewhitenMethod, choices = known.prewhitenMethods, 
+        several.ok = FALSE)
+    samps <- rowSums(!is.na(x))
+    if (!biweight) {
+        stdCrn <- rowMeans(x, na.rm = TRUE)
+    }
+    else {
+        stdCrn <- apply(x, 1, tbrm, C = 9)
+    }
+    outAR <- pooledAR(x, firstAICmin = firstAICmin, maxLag = maxLag)
+    p <- outAR$orderOut
+    if (verbose) {
+        cat("Pooled AR Summary\n")
+        cat("ACF\n")
+        print(outAR$ACF)
+        cat("AR Coefs\n")
+        print(outAR$ARcoefs)
+        cat("AIC\n")
+        print(outAR$aic, digits = 4)
+        cat("Selected Order\n")
+        print(outAR$orderOut)
+    }
+    if (prewhitenMethod2 == "ar.yw") {
+        RWIclean <- apply(x, 2, prewhitenAR, p = p)
+    }
+    if (prewhitenMethod2 == "arima.CSS-ML") {
+        RWIclean <- apply(x, 2, prewhitenARIMA, p = p)
+    }
+    if (!biweight) {
+        if (prewhitenMethod2 == "ar.yw") {
+            resCrn <- prewhitenAR(rowMeans(RWIclean, na.rm = TRUE), 
+                p = p)
+        }
+        if (prewhitenMethod2 == "arima.CSS-ML") {
+            resCrn <- prewhitenARIMA(rowMeans(RWIclean, na.rm = TRUE), 
+                p = p)
+        }
+    }
+    else {
+        if (prewhitenMethod2 == "ar.yw") {
+            resCrn <- prewhitenAR(apply(RWIclean, 1, tbrm, C = 9), 
+                p = p)
+        }
+        if (prewhitenMethod2 == "arima.CSS-ML") {
+            resCrn <- prewhitenARIMA(apply(RWIclean, 1, tbrm, 
+                C = 9), p = p)
+        }
+    }
+    phi <- outAR$ARcoefs[p, ][1:p]
+    RWIar <- apply(RWIclean, 2, postAR, -phi)
+    if (!biweight) {
+        arsCrn <- rowMeans(RWIar, na.rm = TRUE)
+    }
+    else {
+        arsCrn <- apply(RWIar, 1, tbrm, C = 9)
+    }
+    out <- data.frame(std = stdCrn, res = resCrn, ars = arsCrn, 
+        samp.depth = samps)
+    row.names(out) <- row.names(x)
+    class(out) <- c("crn", "data.frame")
+    out_final <- list(chronologies = out, forcedAR = outAR$forcedAR)
+    return(out_final)
+}
