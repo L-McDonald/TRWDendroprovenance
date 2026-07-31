@@ -18,6 +18,8 @@ saveRDS(rwi, "Data/07_DetrendedChronologies.Rdata")
 
 
 # CALCULATE CHRONOLOGIES--------------------------------------------------------
+rwi <- readRDS("Data/07_DetrendedChronologies.Rdata")
+
 crn <- rwi %>% 
   mutate(
     chronologies = map(
@@ -25,6 +27,10 @@ crn <- rwi %>%
       ~ chron.ars.mod(.x, verbose = FALSE, prewhitenMethod = "ar.yw")
     ),
     crn = map(chronologies, "chronologies"),
+    crn = map(crn, ~ {
+      .x[] <- lapply(.x, function(col) replace(col, is.nan(col), NA))
+      .x
+    }),
     forcedAR = map_lgl(chronologies, "forcedAR")
   ) %>% 
   select(-chronologies)
