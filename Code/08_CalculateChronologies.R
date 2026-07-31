@@ -9,7 +9,7 @@ rwl <- readRDS("Data/06_CleanedChronologies.Rdata")
 
 
 # DETREND CHRONOLOGIES----------------------------------------------------------
-rwi <- rwl_clean %>%
+rwi <- rwl %>%
   mutate(
     rwi = map(rwl, ~ detrend(.x, method = "Spline", make.plot = FALSE))
   )
