@@ -397,3 +397,19 @@ chron.ars.mod <- function (x, biweight = TRUE, maxLag = 10, firstAICmin = TRUE,
     out_final <- list(chronologies = out, forcedAR = outAR$forcedAR)
     return(out_final)
 }
+
+
+# EXTRACT_CHRON_WIDE------------------------------------------------------------
+# extracts one chronology type (std/res/ars) from the crn list-column into a
+# year x site_code matrix, needed for pairwise correlation.
+extract_chron_wide <- function(crn, type) {
+  crn %>%
+    select(site_code, crn) %>%
+    mutate(
+      series = map(crn, ~ tibble(year = as.integer(rownames(.x)), value = .x[[type]]))
+    ) %>%
+    select(site_code, series) %>%
+    unnest(series) %>%
+    pivot_wider(names_from = site_code, values_from = value) %>%
+    arrange(year)
+}

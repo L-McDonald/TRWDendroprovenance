@@ -16,21 +16,6 @@ crn %>%
   write.csv("Data/site_locations.csv", row.names = FALSE)
 
 
-# BUILD WIDE-FORMAT CHRONOLOGY MATRICES-----------------------------------------
-# extracts one chronology type (std/res/ars) from the crn list-column into a
-# year x site_code matrix, needed for pairwise correlation.
-extract_chron_wide <- function(crn, type) {
-  crn %>%
-    select(site_code, crn) %>%
-    mutate(
-      series = map(crn, ~ tibble(year = as.integer(rownames(.x)), value = .x[[type]]))
-    ) %>%
-    select(site_code, series) %>%
-    unnest(series) %>%
-    pivot_wider(names_from = site_code, values_from = value) %>%
-    arrange(year)
-}
-
 std_wide <- extract_chron_wide(crn, "std")
 res_wide <- extract_chron_wide(crn, "res")
 ars_wide <- extract_chron_wide(crn, "ars")
