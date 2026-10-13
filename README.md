@@ -49,3 +49,10 @@ width indices for six sites (DEU304, DEU306, DEU312, DEU314, SWIT232, and SWIT31
 have an AR model order of zero which prevents ars being calculated. For these an 
 AR model of order 1 was fitted which tests showed resulted in a time series very
 closely correlated with the std chronology.
+
+### 09_CalculateInterseriesCorrelations.R
+Calculates pairwise Pearson correlations (with the number of overlapping years)
+between all chronologies for each of the std, res, and ars series, and pairwise
+Euclidean distances (m) between chronology locations using EPSG 3035 coordinates.
+Combines these into a single long-format table with one row per unique site
+pair.
