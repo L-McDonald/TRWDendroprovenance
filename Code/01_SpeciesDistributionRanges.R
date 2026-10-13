@@ -83,7 +83,8 @@ merged <- st_union(c(
     st_geometry(ce),
     st_geometry(fr),
     st_geometry(pu)
-))
+)) %>% 
+    st_make_valid()
 
 st_write(merged, "Data/SpeciesDistributionRanges/QURO_QUPE_QUCE_QUFR_QUPU.gpkg")
 
