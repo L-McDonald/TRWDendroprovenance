@@ -192,7 +192,7 @@ remove_problem_series <- function(oaks) {
 update_metadata <- function(rwl) {
   # trim rows with no data across all remaining series
   has_data <- rowSums(!is.na(rwl)) > 0
-  rwl[min(which(has_data)):max(which(has_data)), , drop = FALSE]
+  rwl <- rwl[min(which(has_data)):max(which(has_data)), , drop = FALSE]
 
   #extract metadata
   metadata <- tibble(
