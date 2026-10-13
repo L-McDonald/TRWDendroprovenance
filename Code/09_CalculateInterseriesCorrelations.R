@@ -7,46 +7,28 @@ source("Code/00_Functions.R")
 crn <- readRDS("Data/08_CalculatedChronologies.Rdata")
 
 
-# EXPORT SITE LOCATIONS-----------------------------------------------------------
-# site_code/lat/lon (+ identifying metadata), used e.g. by Code/10_DownloadElevation.py
-# to sample FABDEM elevation via Google Earth Engine.
-crn %>%
-  select(site_code, site_name, source, species, lat, lon, elev) %>%
-  distinct() %>%
-  write.csv("Data/site_locations.csv", row.names = FALSE)
+# # EXPORT SITE LOCATIONS-----------------------------------------------------------
+# # site_code/lat/lon (+ identifying metadata), used e.g. by Code/10_DownloadElevation.py
+# # to sample FABDEM elevation via Google Earth Engine.
+# crn %>%
+#   select(site_code, site_name, source, species, lat, lon, elev) %>%
+#   distinct() %>%
+#   write.csv("Data/site_locations.csv", row.names = FALSE)
 
 
+# EXTRACT CHRONOLOGIES OF EACH TYPE IN LONG FORMAT------------------------------
 std_wide <- extract_chron_wide(crn, "std")
 res_wide <- extract_chron_wide(crn, "res")
 ars_wide <- extract_chron_wide(crn, "ars")
 
 
-# PAIRWISE CORRELATIONS----------------------------------------------------------
-# computes pairwise Pearson correlations (and number of overlapping years) between
-# all chronologies of a given type, using pairwise complete observations. Returned
-# in long/tidy format with one row per unique site pair.
-pairwise_cor_long <- function(wide, value_name) {
-  mat <- as.matrix(select(wide, -year))
-
-  cor_mat <- cor(mat, use = "pairwise.complete.obs")
-  n_mat <- crossprod(!is.na(mat)) # number of overlapping years per pair
-
-  cor_long <- as_tibble(cor_mat, rownames = "site_1") %>%
-    pivot_longer(-site_1, names_to = "site_2", values_to = value_name)
-
-  n_long <- as_tibble(n_mat, rownames = "site_1") %>%
-    pivot_longer(-site_1, names_to = "site_2", values_to = paste0("n_", value_name))
-
-  left_join(cor_long, n_long, by = c("site_1", "site_2")) %>%
-    filter(site_1 < site_2) # keep each unique pair once
-}
-
+# CALCULATE PAIRWISE CORRELATIONS FOR EACH CHRONOLOGY TYPE----------------------
 cor_std <- pairwise_cor_long(std_wide, "cor_std")
 cor_res <- pairwise_cor_long(res_wide, "cor_res")
 cor_ars <- pairwise_cor_long(ars_wide, "cor_ars")
 
 
-# PAIRWISE DISTANCES--------------------------------------------------------------
+# PAIRWISE DISTANCES------------------------------------------------------------
 # computes pairwise Euclidean distances (m) between chronology locations using
 # EPSG:3035 coordinates.
 sites_sf <- crn %>%

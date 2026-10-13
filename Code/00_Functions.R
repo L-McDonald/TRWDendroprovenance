@@ -413,3 +413,24 @@ extract_chron_wide <- function(crn, type) {
     pivot_wider(names_from = site_code, values_from = value) %>%
     arrange(year)
 }
+
+
+# PAIRWISE_COR_LONG-------------------------------------------------------------
+# computes pairwise Pearson correlations (and number of overlapping years) between
+# all chronologies of a given type, using pairwise complete observations. Returned
+# in long/tidy format with one row per unique site pair.
+pairwise_cor_long <- function(wide, value_name) {
+  mat <- as.matrix(select(wide, -year))
+
+  cor_mat <- cor(mat, use = "pairwise.complete.obs")
+  n_mat <- crossprod(!is.na(mat)) # number of overlapping years per pair
+
+  cor_long <- as_tibble(cor_mat, rownames = "site_1") %>%
+    pivot_longer(-site_1, names_to = "site_2", values_to = value_name)
+
+  n_long <- as_tibble(n_mat, rownames = "site_1") %>%
+    pivot_longer(-site_1, names_to = "site_2", values_to = paste0("n_", value_name))
+
+  left_join(cor_long, n_long, by = c("site_1", "site_2")) %>%
+    filter(site_1 < site_2) # keep each unique pair once
+}
