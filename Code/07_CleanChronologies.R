@@ -63,7 +63,8 @@ merged_rows <- clusters %>%
     merged = map(members_df, merge_cluster)
   ) %>%
   pull(merged) %>%
-  bind_rows()
+  bind_rows() %>%
+  st_as_sf(coords = c("x_3035", "y_3035"), crs = 3035, remove = FALSE)
 
 merged_codes <- unlist(clusters$members)
 
