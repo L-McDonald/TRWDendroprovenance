@@ -23,9 +23,9 @@ rwl_sea <- rwl %>%
   filter(apply(st_intersects(., coast, sparse = FALSE), 1, any))
 
 
-# COMBINE SAME-SPECIES CHRONOLOGIES WITHIN 1 KM OF EACH OTHER-------------------
+# COMBINE CHRONOLOGIES WITHIN 1 KM OF EACH OTHER (ANY SPECIES)------------------
 
-## Identify sites of the same species within 1 km of each other
+## Identify sites within 1 km of each other
 dist_mat <- st_distance(rwl_sea)
 diag(dist_mat) <- NA
 
@@ -43,10 +43,9 @@ close_pairs <- tibble(
   dist_m = as.numeric(dist_mat[close_idx])
 )
 
-## Use tidygraph to identify clusters where more than two chronologies are close
-## together and the same species.
+## Use tidygraph to identify clusters of chronologies that are close together,
+## regardless of species.
 clusters <- close_pairs %>% 
-  filter(same_species) %>%
   select(site_a, site_b) %>%
   tidygraph::as_tbl_graph(directed = FALSE) %>%
   tidygraph::activate(nodes) %>%

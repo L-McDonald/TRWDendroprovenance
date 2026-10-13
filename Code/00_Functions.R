@@ -65,6 +65,7 @@ merge_rwl_list <- function(rwl_list) {
 # site_code/site_name/source are concatenated across members, and lat/lon/elev
 # are averaged (members are already within 1 km of each other); x_3035/y_3035
 # are recomputed from the averaged lat/lon rather than also being averaged.
+# species are combined into a single " & "-separated label if members differ.
 merge_cluster <- function(members) {
   rwl_combined <- merge_rwl_list(members$rwl)
 
@@ -83,7 +84,13 @@ merge_cluster <- function(members) {
     end = max(as.numeric(rownames(rwl_combined))),
     length = end - start + 1,
     n_series = ncol(rwl_combined),
-    species = unique(members$species),
+    # split existing combined labels (e.g. "QUPE & QUCE") so species aren't repeated
+    species = members$species %>%
+      str_split(" & ") %>%
+      unlist() %>%
+      unique() %>%
+      sort() %>%
+      paste(collapse = " & "),
     lat = mean_lat,
     lon = mean_lon,
     x_3035 = mean_coords_3035[, "X"],
