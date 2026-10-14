@@ -7,7 +7,7 @@ source("Code/00_Functions.R")
 crn <- readRDS("Data/08_CalculatedChronologies.Rdata")
 
 
-# EXTRACT CHRONOLOGIES OF EACH TYPE IN LONG FORMAT------------------------------
+# EXTRACT CHRONOLOGIES OF EACH TYPE IN WIDE FORMAT------------------------------
 std_wide <- extract_chron_wide(crn, "std")
 res_wide <- extract_chron_wide(crn, "res")
 ars_wide <- extract_chron_wide(crn, "ars")
@@ -53,40 +53,7 @@ pairwise_all <- dist_long %>%
     names_to = c("type", ".value"),
     names_pattern = "(std|res|ars)_(cor|n)"
   ) %>% 
-  select(site_1, site_2, type, dist_m, n, cor)
-
-# NOTE: 37 of 19,306 pairs have zero overlapping years (cor = NA), and 64 pairs
-# overlap in fewer than 10 years, so those correlations are unreliable.
+  select(site_1, site_2, type, dist_m, n, cor) %>% 
+  filter(n >= 40)
 
 write.csv(pairwise_all, "Data/09_RawCorrelations.csv", row.names = FALSE)
-
-
-# NEST CORRELATIONS--------------------------------------------------------------
-# nests each site's pairwise correlations with every other site (across std,
-# res, and ars) as a data frame in a new list-column of crn.
-site_correlations <- pairwise_all %>%
-  transmute(site_code = site_1, other_site = site_2, dist_m, type, n, cor) %>%
-  bind_rows(
-    pairwise_all %>%
-      transmute(site_code = site_2, other_site = site_1, dist_m, type, n, cor)
-  ) %>%
-  arrange(site_code, other_site, type) %>%
-  nest(correlations = c(other_site, dist_m, type, n, cor))
-
-crn <- crn %>%
-  left_join(site_correlations, by = "site_code") %>%
-  relocate(correlations, .after = crn)
-
-#saveRDS(crn, "Data/09_ChronologiesWithCorrelations.Rdata")
-
-
-crn_long <- crn %>%
-  mutate(type = list(c("std", "res", "ars"))) %>%
-  unnest(type) %>%
-  mutate(
-    correlations = map2(correlations, type, ~ filter(.x, type == .y) %>% select(-type))
-  ) %>%
-  relocate(type, .after = site_code)
-
-dim(crn)
-
