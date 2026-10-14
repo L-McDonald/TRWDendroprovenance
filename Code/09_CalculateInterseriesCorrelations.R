@@ -7,15 +7,6 @@ source("Code/00_Functions.R")
 crn <- readRDS("Data/08_CalculatedChronologies.Rdata")
 
 
-# # EXPORT SITE LOCATIONS-----------------------------------------------------------
-# # site_code/lat/lon (+ identifying metadata), used e.g. by Code/10_DownloadElevation.py
-# # to sample FABDEM elevation via Google Earth Engine.
-# crn %>%
-#   select(site_code, site_name, source, species, lat, lon, elev) %>%
-#   distinct() %>%
-#   write.csv("Data/site_locations.csv", row.names = FALSE)
-
-
 # EXTRACT CHRONOLOGIES OF EACH TYPE IN LONG FORMAT------------------------------
 std_wide <- extract_chron_wide(crn, "std")
 res_wide <- extract_chron_wide(crn, "res")
