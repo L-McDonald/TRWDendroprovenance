@@ -5,7 +5,7 @@ source("Code/00_Functions.R")
 
 
 # LOAD DATA---------------------------------------------------------------------
-rwl <- readRDS("Data/06_CleanedChronologies.Rdata")
+rwl <- readRDS("Data/06_CleanedChronologies_Step1.Rdata")
 
 
 # DETREND CHRONOLOGIES----------------------------------------------------------
@@ -14,11 +14,11 @@ rwi <- rwl %>%
     rwi = map(rwl, ~ detrend(.x, method = "Spline", make.plot = FALSE))
   )
 
-saveRDS(rwi, "Data/07_DetrendedChronologies.Rdata")
+saveRDS(rwi, "Data/07_DetrendedChronologies_Step1.Rdata")
 
 
 # CALCULATE CHRONOLOGIES--------------------------------------------------------
-rwi <- readRDS("Data/07_DetrendedChronologies.Rdata")
+rwi <- readRDS("Data/07_DetrendedChronologies_Step1.Rdata")
 
 crn <- rwi %>% 
   mutate(
@@ -35,4 +35,4 @@ crn <- rwi %>%
   ) %>% 
   select(-chronologies)
 
-saveRDS(crn, "Data/08_CalculatedChronologies.Rdata")
+saveRDS(crn, "Data/08_CalculatedChronologies_Step1.Rdata")

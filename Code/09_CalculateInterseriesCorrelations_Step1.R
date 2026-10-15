@@ -4,7 +4,7 @@ library(sf)
 source("Code/00_Functions.R")
 
 # LOAD DATA---------------------------------------------------------------------
-crn <- readRDS("Data/08_CalculatedChronologies.Rdata")
+crn <- readRDS("Data/08_CalculatedChronologies_Step1.Rdata")
 
 
 # EXTRACT CHRONOLOGIES OF EACH TYPE IN WIDE FORMAT------------------------------
@@ -56,4 +56,4 @@ pairwise_all <- dist_long %>%
   select(site_1, site_2, type, dist_m, n, cor) %>% 
   filter(n >= 40)
 
-write.csv(pairwise_all, "Data/09_RawCorrelations.csv", row.names = FALSE)
+write.csv(pairwise_all, "Data/09_RawCorrelations_Step1.csv", row.names = FALSE)

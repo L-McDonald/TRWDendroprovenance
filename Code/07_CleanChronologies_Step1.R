@@ -103,4 +103,4 @@ rwl_clean <- rwl_checked %>%
 
 
 # SAVE CLEANED CHRONOLOGIES-----------------------------------------------------
-saveRDS(rwl_clean, "Data/06_CleanedChronologies.Rdata")
+saveRDS(rwl_clean, "Data/06_CleanedChronologies_Step1.Rdata")
