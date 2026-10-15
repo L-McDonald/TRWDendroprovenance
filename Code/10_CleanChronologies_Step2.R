@@ -6,8 +6,8 @@ source("Code/00_Functions.R")
 
 
 # LOAD DATA---------------------------------------------------------------------
-crn <- readRDS("Data/08_CalculatedChronologies.Rdata")
-corr <- read.csv("Data/09_RawCorrelations.csv")
+crn <- readRDS("Data/08_CalculatedChronologies_Step1.Rdata")
+corr <- read.csv("Data/09_RawCorrelations_Step1.csv")
 
 
 # IDENTIFY VERY HIGH CORRELATING SITES------------------------------------------
