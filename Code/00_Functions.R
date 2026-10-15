@@ -125,7 +125,7 @@ remove_problem_series <- function(oaks) {
       n.all <- ncol(rwl)
       n.half <- floor(n.all / 2)
 
-      c <- interseries.cor(rwl)
+      c <- interseries.cor(rwl, method = "pearson")
       max.p <- max(c$p.val)
 
       while (max.p > 0.01 & ncol(rwl) >= n.half) {
@@ -422,7 +422,7 @@ extract_chron_wide <- function(crn, type) {
 pairwise_cor_long <- function(wide, value_name) {
   mat <- as.matrix(select(wide, -year))
 
-  cor_mat <- cor(mat, use = "pairwise.complete.obs")
+  cor_mat <- cor(mat, use = "pairwise.complete.obs", method = "pearson")
   n_mat <- crossprod(!is.na(mat)) # number of overlapping years per pair
 
   cor_long <- as_tibble(cor_mat, rownames = "site_1") %>%
