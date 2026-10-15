@@ -139,7 +139,7 @@ remove_problem_series <- function(oaks) {
 
         worst.series <- row.names(c)[which.max(c$p.val)]
         rwl <- rwl %>% select(-all_of(worst.series))
-        c <- interseries.cor(rwl)
+        c <- interseries.cor(rwl, method = "pearson")
         max.p <- max(c$p.val)
       }
 
