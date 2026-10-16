@@ -4,10 +4,10 @@ library(rnaturalearth)
 
 
 # UNZIP EUFORGEN SPECIES DISTRIBUTION RANGES------------------------------------
-unzip(
-    "Data/SpeciesDistributionRanges/chorological_maps_dataset_20260126.zip",
-    exdir = "Data/SpeciesDistributionRanges"
-)
+# unzip(
+#     "Data/SpeciesDistributionRanges/chorological_maps_dataset_20260126.zip",
+#     exdir = "Data/SpeciesDistributionRanges"
+# )
 
 
 # LOAD COAST--------------------------------------------------------------------
@@ -86,7 +86,13 @@ merged <- st_union(c(
 )) %>% 
     st_make_valid()
 
+merged_3035 <- st_transform(merged, crs = 3035)
+
 st_write(merged, "Data/SpeciesDistributionRanges/QURO_QUPE_QUCE_QUFR_QUPU.gpkg")
+st_write(merged_3035, "Data/SpeciesDistributionRanges/QURO_QUPE_QUCE_QUFR_QUPU_3035.gpkg")
+
+st_write(merged, "Outputs/EnvironmentalVariables/Region_4326.gpkg")
+st_write(merged_3035, "Outputs/EnvironmentalVariables/Region_3035.gpkg")
 
 
 # BOUNDING BOX------------------------------------------------------------------
