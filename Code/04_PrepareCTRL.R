@@ -7,17 +7,9 @@ source("Code/00_Functions.R")
 
 
 # LOAD DATA---------------------------------------------------------------------
-
-# load worldclim elevation and reproject to EPSG 3035
-# elev <- terra::rast("Data/wc2.1_30s_elev/wc2.1_30s_elev.tif") %>%
-#   terra::crop(c(xmin = -25, xmax = 90, ymin = 10, ymax = 90)) %>%
-#   terra::project("EPSG:3035")
-
-# writeRaster(elev, "Data/wc2.1_30s_elev/wc2.1_30s_elev_reprojected3035.tif")
-
-elev <- terra::rast("Data/wc2.1_30s_elev/wc2.1_30s_elev.tif")
+elev <- terra::rast("Outputs/EnvironmentalVariables/Elevation_4326.tif")
 meta_ctrl <- read.csv("Data/metadata_CTRL.csv")
-range <- read_sf("Data/SpeciesDistributionRanges/QURO_QUPE_QUCE_QUFR.gpkg")
+range <- read_sf("Outputs/EnvironmentalVariables/Region_4326.gpkg")
 
 
 # READ RWL FILES----------------------------------------------------------------

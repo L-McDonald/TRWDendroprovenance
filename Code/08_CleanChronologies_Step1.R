@@ -9,12 +9,7 @@ source("Code/00_Functions.R")
 
 # LOAD DATA---------------------------------------------------------------------
 rwl <- readRDS("Outputs/05_InitialChronologies_All.Rdata")
-
-coast <- ne_countries(scale = 10, continent = c("Africa", "Europe", "Asia")) %>%
-    st_make_valid() %>%
-    st_crop(c(xmin = -25, xmax = 90, ymin = 10, ymax = 90)) %>%
-    st_geometry() %>%
-    st_transform(3035)
+coast <- read_sf("Outputs/EnvironmentalVariables/Coastline_3035.gpkg")
 
 
 # CHECK FOR AND REMOVE CHRONOLOGIES LOCATED AT SEA------------------------------

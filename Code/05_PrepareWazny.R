@@ -8,7 +8,7 @@ source("Code/00_Functions.R")
 
 # LOAD DATA---------------------------------------------------------------------
 meta_wazny <- read.csv("Data/metadata_Wazny.csv")
-range <- read_sf("Data/SpeciesDistributionRanges/QURO_QUPE_QUCE_QUFR.gpkg")
+range <- read_sf("Outputs/EnvironmentalVariables/Region_4326.gpkg")
 
 
 # READ RWL FILES----------------------------------------------------------------

@@ -11,12 +11,9 @@ library(rnaturalearth)
 
 
 # LOAD COAST and SPECIES DISTRIBUTION RANGE-------------------------------------
-coast <- ne_countries(scale = 10, continent = c("Africa", "Europe", "Asia")) %>%
-  st_make_valid() %>%
-  st_crop(c(xmin = -25, xmax = 90, ymin = 10, ymax = 90)) %>%
-  st_geometry()
+coast <- read_sf("Outputs/EnvironmentalVariables/Coastline_4326.gpkg")
 
-range <- read_sf("Data/SpeciesDistributionRanges/QURO_QUPE_QUCE_QUFR_QUPU.gpkg")
+range <- read_sf("Outputs/EnvironmentalVariables/Region_4326.gpkg")
 
 
 # ITRDB SEARCH PARAMETERS-------------------------------------------------------

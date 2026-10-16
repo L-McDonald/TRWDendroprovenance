@@ -5,18 +5,8 @@ library(rnaturalearth)
 
 
 # LOAD STUDY REGION AND COAST---------------------------------------------------
-region <- st_read(
-  "Data/SpeciesDistributionRanges/QURO_QUPE_QUCE_QUFR_QUPU_3035.gpkg"
-)
-
-coast <- ne_countries(
-  scale = 10,
-  continent = c("Africa", "Europe", "Asia")
-) %>%
-  st_make_valid() %>%
-  st_crop(c(xmin = -25, xmax = 90, ymin = 10, ymax = 90)) %>%
-  st_geometry() %>%
-  st_transform(crs = 3035)
+region <- st_read("Outputs/EnvironmentalVariables/Region_3035.gpkg")
+coast <- st_read("Outputs/EnvironmentalVariables/Coastline_3035.gpkg")
 
 
 # GENERATE GRID OVER SPECIES DISTRIBUTION RANGE---------------------------------
