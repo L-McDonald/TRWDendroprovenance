@@ -6,9 +6,9 @@ source("Code/00_Functions.R")
 
 
 # LOAD CHRONOLOGIES-------------------------------------------------------------
-itrdb <- readRDS("Data/04_HistoricalSeriesRemoved_ITRDB.Rdata")
-ctrl <- readRDS("Data/02_InitialChronologies_CTRL.Rdata")
-wazny <- readRDS("Data/03_InitialChronologies_Wazny.Rdata")
+itrdb <- readRDS("Outputs/04_HistoricalSeriesRemoved_ITRDB.Rdata")
+ctrl <- readRDS("Outputs/02_InitialChronologies_CTRL.Rdata")
+wazny <- readRDS("Outputs/03_InitialChronologies_Wazny.Rdata")
 
 
 # MERGE INTO ONE DATAFRAME------------------------------------------------------
@@ -28,4 +28,4 @@ chron <- chron %>%
 
 
 # SAVE--------------------------------------------------------------------------
-saveRDS(chron, "Data/05_InitialChronologies_All.Rdata")
+saveRDS(chron, "Outputs/05_InitialChronologies_All.Rdata")

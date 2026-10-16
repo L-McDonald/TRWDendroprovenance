@@ -63,4 +63,4 @@ ctrl_elev <- ctrl %>%
 
 
 # SAVE CHRONOLOGIES-------------------------------------------------------------
-saveRDS(ctrl_elev, "Data/02_InitialChronologies_CTRL.Rdata")
+saveRDS(ctrl_elev, "Outputs/02_InitialChronologies_CTRL.Rdata")

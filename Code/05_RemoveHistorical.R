@@ -5,7 +5,7 @@ source("Code/00_Functions.R")
 
 
 # LOAD DATA---------------------------------------------------------------------
-itrdb <- readRDS("Data/01_InitialChronologies_ITRDB.Rdata")
+itrdb <- readRDS("Outputs/01_InitialChronologies_ITRDB.Rdata")
 
 
 # PLOT INDIVIDUAL SERIES FROM EACH CHRONOLOGY-----------------------------------
@@ -36,7 +36,7 @@ itrdb_clean <- itrdb %>%
     n_series = map_int(rwl, ncol)
   )
 
-saveRDS(itrdb_clean, "Data/04_HistoricalSeriesRemoved_ITRDB.Rdata")
+saveRDS(itrdb_clean, "Outputs/04_HistoricalSeriesRemoved_ITRDB.Rdata")
 
 
 # REPLOT INDIVIDUAL SERIES FROM EACH CHRONOLOGY---------------------------------

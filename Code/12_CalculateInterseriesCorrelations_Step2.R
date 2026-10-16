@@ -95,4 +95,4 @@ cor_all <- pairwise_all %>%
 
 
 # SAVE CORRELATIONS-------------------------------------------------------------
-write.csv(pairwise_all, "Data/13_RawCorrelations_Step2.csv", row.names = FALSE)
+write.csv(pairwise_all, "Outputs/13_RawCorrelations_Step2.csv", row.names = FALSE)

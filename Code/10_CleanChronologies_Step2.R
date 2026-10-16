@@ -6,8 +6,8 @@ source("Code/00_Functions.R")
 
 
 # LOAD DATA---------------------------------------------------------------------
-crn <- readRDS("Data/08_CalculatedChronologies_Step1.Rdata")
-corr <- read.csv("Data/09_RawCorrelations_Step1.csv")
+crn <- readRDS("Outputs/08_CalculatedChronologies_Step1.Rdata")
+corr <- read.csv("Outputs/09_RawCorrelations_Step1.csv")
 
 
 # IDENTIFY VERY HIGH CORRELATING SITES------------------------------------------
@@ -61,4 +61,4 @@ crn_checked <- remove_problem_series(crn_filtered) %>%
 
 
 # SAVE CLEANED CHRONOLOGIES-----------------------------------------------------
-saveRDS(crn_checked, "Data/10_CleanedChronologies_Step2.Rdata")
+saveRDS(crn_checked, "Outputs/10_CleanedChronologies_Step2.Rdata")

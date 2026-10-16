@@ -56,4 +56,4 @@ pairwise_all <- dist_long %>%
   select(site_1, site_2, type, dist_m, n, cor) %>% 
   filter(n >= 40)
 
-write.csv(pairwise_all, "Data/09_RawCorrelations_Step1.csv", row.names = FALSE)
+write.csv(pairwise_all, "Outputs/09_RawCorrelations_Step1.csv", row.names = FALSE)

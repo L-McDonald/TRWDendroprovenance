@@ -8,7 +8,7 @@ source("Code/00_Functions.R")
 
 
 # LOAD DATA---------------------------------------------------------------------
-rwl <- readRDS("Data/05_InitialChronologies_All.Rdata")
+rwl <- readRDS("Outputs/05_InitialChronologies_All.Rdata")
 
 coast <- ne_countries(scale = 10, continent = c("Africa", "Europe", "Asia")) %>%
     st_make_valid() %>%
@@ -103,4 +103,4 @@ rwl_clean <- rwl_checked %>%
 
 
 # SAVE CLEANED CHRONOLOGIES-----------------------------------------------------
-saveRDS(rwl_clean, "Data/06_CleanedChronologies_Step1.Rdata")
+saveRDS(rwl_clean, "Outputs/06_CleanedChronologies_Step1.Rdata")

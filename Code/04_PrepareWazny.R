@@ -33,4 +33,4 @@ wazny <- map_dfr(rwl_files, rwl_tibble) %>%
 
 
 # SAVE CHRONOLOGIES-------------------------------------------------------------
-saveRDS(wazny, "Data/03_InitialChronologies_Wazny.Rdata")
+saveRDS(wazny, "Outputs/03_InitialChronologies_Wazny.Rdata")
