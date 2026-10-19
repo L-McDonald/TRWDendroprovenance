@@ -19,9 +19,9 @@ grid_df <- as.data.frame(grid_r, xy = TRUE, na.rm = TRUE) %>%
 
 
 # SAVE GRIDS--------------------------------------------------------------------
-terra::writeRaster(grid_r, "Outputs/PredictionGrid/PredictionGrid_Raster.tif")
+terra::writeRaster(grid_r, "Outputs/14_PredictionGrid_Raster.tif")
 write.csv(
   grid_df,
-  "Outputs/PredictionGrid/PredictionGrid_DataFrame_Coordinates.csv",
+  "Outputs/15_PredictionGrid_Coordinates.csv",
   row.names = FALSE
 )

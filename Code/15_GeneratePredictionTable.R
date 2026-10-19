@@ -4,10 +4,7 @@ library(terra)
 
 
 # LOAD DATA---------------------------------------------------------------------
-grid_df <- read.csv(
-  "Outputs/PredictionGrid/PredictionGrid_DataFrame_Coordinates.csv"
-)
-
+grid_df <- read.csv("Outputs/15_PredictionGrid_Coordinates.csv")
 elev <- terra::rast("Outputs/EnvironmentalVariables/Elevation_3035.tif")
 
 cru_files <- list.files(
@@ -51,6 +48,6 @@ pred_table <- bind_cols(grid_df, grid_elev, grid_cru, grid_soil)
 
 write.csv(
   pred_table,
-  "Outputs/PredictionGrid/Prediction_Table.csv",
+  "Outputs/16_PredictionGrid_EnvironmentalVariables.csv",
   row.names = FALSE
 )

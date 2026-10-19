@@ -27,20 +27,20 @@ soil_up <- aggregate(soil, fact = 10, fun = "mean", na.rm = TRUE)
 
 
 # GET ENVIRONMENTAL VALUES AT EACH SITE-----------------------------------------
-train_coords <- crn %>%
+coords <- crn %>%
   select(x = x_3035, y = y_3035)
 
 elev_df <- crn %>%
   select(site_code, x = x_3035, y = y_3035, elev)
 
-cru_df <- terra::extract(cru, train_coords, ID = FALSE)
+cru_df <- terra::extract(cru, coords, ID = FALSE)
 
 soil_df <- map_dfc(as.list(soil_up), \(l) {
-  terra::extract(l, train_coords, ID = FALSE)
+  terra::extract(l, coords, ID = FALSE)
 })
 
 
 # BIND INTO TRAINING TABLE AND SAVE---------------------------------------------
-train <- bind_cols(elev_df, cru_df, soil_df)
+env <- bind_cols(elev_df, cru_df, soil_df)
 
-write.csv(train, "Outputs/PredictionGrid/TrainingTable.csv")
+write.csv(env, "Outputs/17_SiteEnvironmentalVariables.csv", row.names = FALSE)
