@@ -1,7 +1,6 @@
 library(tidyverse)
 library(sf)
 library(terra)
-library(rnaturalearth)
 
 
 # LOAD STUDY REGION AND COAST---------------------------------------------------
@@ -23,5 +22,6 @@ grid_df <- as.data.frame(grid_r, xy = TRUE, na.rm = TRUE) %>%
 terra::writeRaster(grid_r, "Outputs/PredictionGrid/PredictionGrid_Raster.tif")
 write.csv(
   grid_df,
-  "Outputs/PredictionGrid/PredictionGrid_DataFrame_Coordinates.csv"
+  "Outputs/PredictionGrid/PredictionGrid_DataFrame_Coordinates.csv",
+  row.names = FALSE
 )
