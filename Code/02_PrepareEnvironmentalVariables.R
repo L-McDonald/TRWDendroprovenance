@@ -31,7 +31,8 @@ st_write(coast_3035, "Outputs/EnvironmentalVariables/Coastline_3035.gpkg")
 elev <- terra::rast(
   "Data/EnvironmentalVariables/wc2.1_30s_elev/wc2.1_30s_elev.tif"
 ) %>%
-  terra::crop(st_buffer(region, dist = 5))
+  terra::crop(st_buffer(region, dist = 5)) %>% 
+  setNames("elev")
 
 elev_3035 <- terra::project(elev, "EPSG:3035")
 
