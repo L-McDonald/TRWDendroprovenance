@@ -1,10 +1,11 @@
 library(tidyverse)
 library(sf)
+library(dplR)
 
 source("Code/00_Functions.R")
 
 # LOAD DATA---------------------------------------------------------------------
-crn <- readRDS("Data/12_CalculatedChronologies_Step2.Rdata")
+crn <- readRDS("Outputs/12_CalculatedChronologies_Step2.Rdata")
 
 
 # EXTRACT CHRONOLOGIES OF EACH TYPE IN WIDE FORMAT------------------------------
