@@ -90,3 +90,7 @@ in script 14. Saves as a csv.
 Extracts values from the environmental variables rasters at the site coordinates
 and saves as a csv. Upscales the soil data by a factor of six to better account
 for positional uncertainty in the ITRDB coordinates.
+
+### 17_GenerateTrainingTables.R
+For each site generate a table of correlations with all other sites along with 
+the environmental predictors. Save as nested Rdata tibble and as individual csvs.
