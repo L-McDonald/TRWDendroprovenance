@@ -81,3 +81,12 @@ correlation that chronology has with another chronology.
 ### 14_DefinePredictionGrid.R
 Generates a 37.5 Km grid across the study region. Saves it as a raster and a csv
 of coordinates.
+
+### 15_GeneratePredictionTable.R
+Extracts values from the environmental variables at the grid coordinates defined
+in script 14. Saves as a csv.
+
+### 16_GenerateSiteEnvironmentalVariables.R
+Extracts values from the environmental variables rasters at the site coordinates
+and saves as a csv. Upscales the soil data by a factor of six to better account
+for positional uncertainty in the ITRDB coordinates.
