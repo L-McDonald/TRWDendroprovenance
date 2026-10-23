@@ -37,6 +37,7 @@ train %>%
   pwalk(\(site_code, type, train) {
     write.csv(
       train,
-      paste0("Outputs/TrainingTables/", site_code, "_", type, ".csv")
+      paste0("Outputs/TrainingTables/", site_code, "_", type, ".csv"),
+      row.names = FALSE
     )
   })
