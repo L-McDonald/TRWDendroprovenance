@@ -17,13 +17,13 @@ coast <- ne_countries(
   continent = c("Africa", "Europe", "Asia")
 ) %>%
   st_make_valid() %>%
-  st_crop(c(xmin = -15, xmax = 65, ymin = 20, ymax = 70)) %>%
+  st_crop(c(xmin = -15, xmax = 90, ymin = 18, ymax = 75)) %>%
   st_geometry()
 
 coast_3035 <- st_transform(coast, crs = 3035)
 
-st_write(coast, "Outputs/EnvironmentalVariables/Coastline_4326.gpkg")
-st_write(coast_3035, "Outputs/EnvironmentalVariables/Coastline_3035.gpkg")
+st_write(coast, "Outputs/EnvironmentalVariables/Coastline_4326.gpkg", append = FALSE)
+st_write(coast_3035, "Outputs/EnvironmentalVariables/Coastline_3035.gpkg", append = FALSE)
 
 
 # ELEVATION---------------------------------------------------------------------
