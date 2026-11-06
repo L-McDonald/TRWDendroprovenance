@@ -94,3 +94,12 @@ for positional uncertainty in the ITRDB coordinates.
 ### 17_GenerateTrainingTables.R
 For each site generate a table of correlations with all other sites along with 
 the environmental predictors. Save as nested Rdata tibble and as individual csvs.
+
+### 18_CompareModels.R
+For each sites full training table, 6 different possible interpolation models 
+are calculated: 1 random forest and 6 universal Kriging R2 and RMSE are 
+calculated and the models compared. Based on these results three models are 
+tested with leave-one-out cross-validation in the next step: random forest, 
+universal Kriging with a second order model on the coordinates, and universal
+Kriging with a linear model on the coordinates and also including distance from 
+the central site. Saves the resulting maps in Figures/ModelComparisons.
