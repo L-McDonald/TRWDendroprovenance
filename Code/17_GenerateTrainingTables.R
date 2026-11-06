@@ -24,7 +24,8 @@ train <- crn %>%
           dist_km = dist_m / 1000
         ) %>%
         select(map_site, test_site, cor, dist_km) %>%
-        left_join(site_env, by = join_by(test_site == site_code))
+        left_join(site_env, by = join_by(test_site == site_code)) %>% 
+        relocate(dist_km, .after = y)
     )
   )
 
