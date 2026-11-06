@@ -103,3 +103,9 @@ tested with leave-one-out cross-validation in the next step: random forest,
 universal Kriging with a second order model on the coordinates, and universal
 Kriging with a linear model on the coordinates and also including distance from 
 the central site. Saves the resulting maps in Figures/ModelComparisons.
+
+### 19_LOOCV.R
+Treats each site in turn as the centre site and builds correlation maps with one
+additional site left out each time. Three models tested: random forest and two 
+universal Kriging models. Maps generated here will be used for assignment in 
+later step.
