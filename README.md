@@ -109,3 +109,8 @@ Treats each site in turn as the centre site and builds correlation maps with one
 additional site left out each time. Three models tested: random forest and two 
 universal Kriging models. Maps generated here will be used for assignment in 
 later step.
+
+### 20_LOOCV_Predictions.R
+Takes the models from the previous step and extracts predictions and standard
+errors. Converts them to rasters and saves. Also saves the predictions as a 
+tibble.
