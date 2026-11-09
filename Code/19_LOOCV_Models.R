@@ -37,6 +37,7 @@ run_loocv <- function(site, type, centre_x, centre_y, pred_grid) {
   # perform loocv for each site and each model
   loocv <- train_df %>%
     select(map_site, test_site, cor, x, y, dist_km, elev) %>%
+    mutate(type = type, .after = test_site) %>% 
     filter(map_site != test_site) %>%
     crossing(model = c("RF", "UK1", "UK2")) %>%
     mutate(
@@ -78,7 +79,7 @@ run_loocv <- function(site, type, centre_x, centre_y, pred_grid) {
 plan(multisession, workers = 9)
 
 future_pmap(
-  list(sites_test$site_code, sites_test$type, sites_test$x_3035, sites_test$y_3035),
+  list(sites$site_code, sites$type, sites$x_3035, sites$y_3035),
   \(s, t, cx, cy) run_loocv(s, t, cx, cy, pred_grid),
   .options = furrr_options(
     seed = TRUE,
