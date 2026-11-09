@@ -104,7 +104,7 @@ universal Kriging with a second order model on the coordinates, and universal
 Kriging with a linear model on the coordinates and also including distance from 
 the central site. Saves the resulting maps in Figures/ModelComparisons.
 
-### 19_LOOCV.R
+### 19_LOOCV_Models.R
 Treats each site in turn as the centre site and builds correlation maps with one
 additional site left out each time. Three models tested: random forest and two 
 universal Kriging models. Maps generated here will be used for assignment in 
