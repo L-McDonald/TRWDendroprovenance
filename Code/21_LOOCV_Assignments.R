@@ -8,6 +8,8 @@ library(furrr)
 sites <- readRDS("Outputs/18_TrainingTables.Rdata") %>%
   select(site_code, type, x_3035, y_3035)
 
+
+# FUNCTION TO MAKE ASSIGNMENTS--------------------------------------------------
 make_assignments <- function(site, type) {
   path_in <- paste0("Outputs/LOOCV_Predictions/", site, "_", type, ".Rdata")
   path_out <- paste0("Outputs/LOOCV_Assignments/", site, "_", type, ".Rdata")
