@@ -114,3 +114,8 @@ later step.
 Takes the models from the previous step and extracts predictions and standard
 errors. Converts them to rasters and saves. Also saves the predictions as a 
 tibble.
+
+### 21_LOOCV_Assignments.R
+For each central site and test site import the rasters and perform an assignment
+for the test site. Record accuracy and precision. Save the results and the
+assignment rasters in tibbles in Outputs/LOOCV_Assignments.
