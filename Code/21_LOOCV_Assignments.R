@@ -29,7 +29,7 @@ make_assignments <- function(site, type) {
         ".tif"
       ),
       location = map2(x, y, ~ terra::vect(cbind(.x, .y), crs = "EPSG:3035")),
-      assignment_df = vector("list", nrow(assign)),
+      assignment_df = list(NULL),
       accuracy_68 = NA,
       accuracy_95 = NA,
       area_68_count = NA,
@@ -78,8 +78,11 @@ make_assignments <- function(site, type) {
       100
 
     df <- terra::as.data.frame(prob_rast, xy = TRUE) %>%
-      bind_cols(terra::as.data.frame(quant_68_rast)) %>%
-      bind_cols(terra::as.data.frame(quant_95_rast)) %>%
+      bind_cols(
+        terra::as.data.frame(quant_68_rast),
+        terra::as.data.frame(quant_95_rast),
+        .name_repair = "minimal"
+      ) %>%
       setNames(c("x", "y", "prob", "quant_68", "quant_95"))
 
     assign$assignment_df[[i]] <- df
