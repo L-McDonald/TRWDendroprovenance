@@ -2,6 +2,7 @@ library(tidyverse)
 library(terra)
 library(sf)
 library(ranger)
+library(furrr)
 
 
 # LOAD DATA---------------------------------------------------------------------
@@ -14,7 +15,7 @@ pred_grid <- read.csv("Outputs/16_PredictionGrid_EnvironmentalVariables.csv")
 # FUNCTION TO EXTRACT PREDICTIONS AND SAVE RASTERS------------------------------
 extract_predictions <- function(site, type, centre_x, centre_y, pred_grid) {
   path_in <- paste0("Outputs/LOOCV_Models/", site, "_", type, ".Rdata")
-  path_out <- paste0("Outputs/LOOCV_Predictions", site, "_", type, ".Rdata")
+  path_out <- paste0("Outputs/LOOCV_Predictions/", site, "_", type, ".Rdata")
 
   # generate site specific prediction tables
   grid_df <- pred_grid %>%
@@ -81,6 +82,17 @@ extract_predictions <- function(site, type, centre_x, centre_y, pred_grid) {
   saveRDS(models, path_out)
 }
 
+# PERFMORM PREDICTIONS----------------------------------------------------------
+plan(multisession, workers = 9)
 
-test_rast <- terra::rast(a, type = "xyz", "EPSG:3035")
-terra::writeRaster(test_rast, "test.tif")
+future_pmap(
+  list(sites$site_code, sites$type, sites$x_3035, sites$y_3035),
+  \(s, t, cx, cy) extract_predictions(s, t, cx, cy, pred_grid),
+  .options = furrr_options(
+    seed = TRUE,
+    packages = c("tidyverse", "sf", "ranger", "terra")
+  ),
+  .progress = TRUE
+)
+
+plan(sequential)
