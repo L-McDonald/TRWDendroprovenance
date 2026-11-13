@@ -61,10 +61,18 @@ extract_predictions <- function(site, type, centre_x, centre_y, pred_grid) {
       )
     ) %T>%
     pwalk(\(rast, map_site, test_site, type, model, ...) {
+      dir.create(
+        file.path("Outputs/LOOCV_Rasters", map_site),
+        recursive = TRUE,
+        showWarnings = FALSE
+      )
+
       terra::writeRaster(
         rast,
         paste0(
           "Outputs/LOOCV_Rasters/",
+          map_site,
+          "/",
           map_site,
           "_",
           test_site,

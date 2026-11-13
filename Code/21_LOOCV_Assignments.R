@@ -20,6 +20,8 @@ make_assignments <- function(site, type) {
       rast_path = paste0(
         "Outputs/LOOCV_Rasters/",
         map_site,
+        "/",
+        map_site,
         "_",
         test_site,
         "excl_",
