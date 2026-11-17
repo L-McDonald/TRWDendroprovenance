@@ -6,7 +6,8 @@ library(furrr)
 
 # LOAD DATA---------------------------------------------------------------------
 sites <- readRDS("Outputs/18_TrainingTables.Rdata") %>%
-  select(site_code, type, x_3035, y_3035)
+  select(site_code, x_3035, y_3035) %>% 
+  distinct()
 
 pairwise_cor <- read.csv("Outputs/13_RawCorrelations_Step2.csv")
 
