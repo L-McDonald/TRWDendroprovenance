@@ -140,7 +140,8 @@ future_pmap(
   \(s, x, y) assign_multi_site(s, x, y),
   .options = furrr_options(
     seed = TRUE,
-    packages = c("tidyverse", "sf", "terra")
+    packages = c("tidyverse", "sf", "terra"),
+    envir = list(pairwise_cor = pairwise_cor)
   ),
   .progress = TRUE
 )
