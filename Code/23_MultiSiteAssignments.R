@@ -65,7 +65,13 @@ assign_multi_site <- function(test_site, test_x, test_y) {
         rast_list <- lapply(assign$rast_path[1:k], terra::rast) %>%
           setNames(assign$map_site[1:k])
 
-        rast <- isoStack(rast_list)
+        n_sites <- assign$n_sites[k]
+
+        if (n_sites < 2) {
+          rast <- rast(rast_list)
+        } else {
+          rast <- isoStack(rast_list)
+        }
 
         test_cor <- assign %>%
           slice(1:k) %>%
