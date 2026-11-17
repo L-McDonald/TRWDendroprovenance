@@ -16,6 +16,11 @@ assign_multi_chron <- function(site) {
   path_in <- paste0("Outputs/LOOCV_Predictions/", site, "_ars.Rdata")
   path_out <- paste0("Outputs/LOOCV_MultiChronAssignments/", site, ".Rdata")
 
+  # check for and skip finished sites so the run can be resumed
+  if (file.exists(path_out)) {
+    return(invisible(path_out))
+  }
+
   assign <- readRDS(path_in) %>%
     select(map_site, test_site, x, y, dist_km, elev, model) %>%
     mutate(
@@ -131,7 +136,8 @@ assign_multi_chron <- function(site) {
 
   assign_out <- assign %>% unnest("results")
   
-  saveRDS()
+  saveRDS(assign_out, path_out)
+  invisible(path_out)
 }
 
 
