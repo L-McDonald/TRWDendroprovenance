@@ -38,7 +38,6 @@ assign_multi_site <- function(test_site, test_x, test_y) {
         select(test_site, map_site, type, dist_m, n, cor) %>%
         arrange(desc(cor)) %>%
         mutate(
-          n_sites = row_number(),
           model = model_types[j],
           rast_path = paste0(
             "Outputs/LOOCV_Rasters/",
@@ -60,7 +59,11 @@ assign_multi_site <- function(test_site, test_x, test_y) {
           area_95_count = NA,
           precision_68 = NA,
           precision_95 = NA
-        )
+        ) %>% 
+        mutate(path_exists = file.exists(rast_path)) %>% 
+        filter(path_exists) %>% 
+        select(-path_exists) %>% 
+        mutate(n_sites = row_number(), .after = model)
 
       for (k in 1:nrow(assign)) {
         rast_list <- lapply(assign$rast_path[1:k], terra::rast) %>%
@@ -120,7 +123,7 @@ assign_multi_site <- function(test_site, test_x, test_y) {
         assign$assignment_df[[k]] <- df
       }
 
-      output[[count]] <- assign
+      output[[count]] <- assign %>% select(-rast_path)
     }
   }
 
@@ -142,7 +145,7 @@ future_pmap(
   .options = furrr_options(
     seed = TRUE,
     packages = c("tidyverse", "sf", "terra"),
-    envir = list(pairwise_cor = pairwise_cor)
+    globals = list(pairwise_cor = pairwise_cor)
   ),
   .progress = TRUE
 )
