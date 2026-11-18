@@ -72,7 +72,7 @@ assign_multi_site <- function(test_site, test_x, test_y) {
         n_sites <- assign$n_sites[k]
 
         if (n_sites < 2) {
-          rast <- rast(rast_list)
+          rast <- terra::rast(rast_list)
         } else {
           rast <- isoStack(rast_list)
         }
@@ -136,7 +136,7 @@ assign_multi_site <- function(test_site, test_x, test_y) {
 }
 
 
-# PERFMORM ASSIGNMENTS----------------------------------------------------------
+# PERFORM ASSIGNMENTS-----------------------------------------------------------
 plan(multisession, workers = 9)
 
 future_pmap(
@@ -144,8 +144,7 @@ future_pmap(
   \(s, x, y) assign_multi_site(s, x, y),
   .options = furrr_options(
     seed = TRUE,
-    packages = c("tidyverse", "sf", "terra"),
-    globals = list(pairwise_cor = pairwise_cor)
+    packages = c("tidyverse", "sf", "terra", "assignR")
   ),
   .progress = TRUE
 )
