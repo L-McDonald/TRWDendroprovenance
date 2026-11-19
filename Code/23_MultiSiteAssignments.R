@@ -66,7 +66,7 @@ assign_multi_site <- function(test_site, test_x, test_y) {
           area_95_count = NA,
           precision_68 = NA,
           precision_95 = NA,
-          prob_fail <- FALSE
+          prob_fail = FALSE
         ) %>%
         mutate(path_exists = file.exists(rast_path)) %>%
         filter(path_exists) %>%
@@ -96,7 +96,7 @@ assign_multi_site <- function(test_site, test_x, test_y) {
         prob_rast <- pdRaster(rast, test_cor, genplot = FALSE)
 
         if (all(is.na(values(prob_rast)))) {
-          prob_fail <- TRUE
+          assign[k, "prob_fail"] <- TRUE
           next
         }
 
