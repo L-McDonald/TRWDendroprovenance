@@ -65,12 +65,13 @@ assign_multi_site <- function(test_site, test_x, test_y) {
           area_68_count = NA,
           area_95_count = NA,
           precision_68 = NA,
-          precision_95 = NA
+          precision_95 = NA,
+          prob_fail <- FALSE
         ) %>%
         mutate(path_exists = file.exists(rast_path)) %>%
         filter(path_exists) %>%
         select(-path_exists) %>%
-        mutate(n_sites = row_number(), .after = model) %>% 
+        mutate(n_sites = row_number(), .after = model) %>%
         slice(1:50)
 
       for (k in 1:nrow(assign)) {
@@ -93,6 +94,11 @@ assign_multi_site <- function(test_site, test_x, test_y) {
           as.data.frame()
 
         prob_rast <- pdRaster(rast, test_cor, genplot = FALSE)
+
+        if (all(is.na(values(prob_rast)))) {
+          prob_fail <- TRUE
+          next
+        }
 
         quant_68_rast <- qtlRaster(
           prob_rast,
