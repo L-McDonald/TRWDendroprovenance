@@ -6,7 +6,7 @@ library(furrr)
 
 # LOAD DATA---------------------------------------------------------------------
 sites <- readRDS("Outputs/18_TrainingTables.Rdata") %>%
-  select(site_code, x_3035, y_3035) %>% 
+  select(site_code, x_3035, y_3035) %>%
   distinct()
 
 pairwise_cor <- read.csv("Outputs/13_RawCorrelations_Step2.csv")
@@ -59,11 +59,12 @@ assign_multi_site <- function(test_site, test_x, test_y) {
           area_95_count = NA,
           precision_68 = NA,
           precision_95 = NA
-        ) %>% 
-        mutate(path_exists = file.exists(rast_path)) %>% 
-        filter(path_exists) %>% 
-        select(-path_exists) %>% 
-        mutate(n_sites = row_number(), .after = model)
+        ) %>%
+        mutate(path_exists = file.exists(rast_path)) %>%
+        filter(path_exists) %>%
+        select(-path_exists) %>%
+        mutate(n_sites = row_number(), .after = model) %>% 
+        slice(1:50)
 
       for (k in 1:nrow(assign)) {
         rast_list <- lapply(assign$rast_path[1:k], terra::rast) %>%
