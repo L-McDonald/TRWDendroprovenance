@@ -14,6 +14,13 @@ pairwise_cor <- read.csv("Outputs/13_RawCorrelations_Step2.csv")
 
 # FUNCTION FOR MULTI-CHRONOLOGY ASSIGNMENTS-------------------------------------
 assign_multi_site <- function(test_site, test_x, test_y) {
+  path_out <- paste0("Outputs/LOOCV_MultiSiteAssignments/", test_site, ".Rdata")
+
+  # check for and skip finished sites so the run can be resumed
+  if (file.exists(path_out)) {
+    return(invisible(path_out))
+  }
+
   output <- vector("list", 9)
 
   chron_types <- c("ars", "res", "std")
@@ -130,10 +137,8 @@ assign_multi_site <- function(test_site, test_x, test_y) {
 
   output_long <- bind_rows(output)
 
-  saveRDS(
-    output_long,
-    paste0("Outputs/LOOCV_MultiSiteAssignments/", test_site, ".Rdata")
-  )
+  saveRDS(output_long, path_out)
+  invisible(path_out)
 }
 
 
