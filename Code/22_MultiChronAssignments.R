@@ -85,46 +85,105 @@ assign_multi_chron <- function(site) {
           correlation,
           ~ suppressWarnings(pdRaster(.x, .y, genplot = FALSE))
         ),
-        quant_68 = map(
+        prob_fail = map_lgl(prob, ~ all(is.na(values(.x)))),
+        quant_68 = map2(
           prob,
-          ~ qtlRaster(.x, 0.68, thresholdType = "prob", genplot = FALSE)
+          prob_fail,
+          \(prob, run) {
+            if (!run) {
+              qtlRaster(prob, 0.68, thresholdType = "prob", genplot = FALSE)
+            } else {
+              NULL
+            }
+          }
         ),
-        quant_95 = map(
+        quant_95 = map2(
           prob,
-          ~ qtlRaster(.x, 0.95, thresholdType = "prob", genplot = FALSE)
+          prob_fail,
+          \(prob, run) {
+            if (!run) {
+              qtlRaster(prob, 0.95, thresholdType = "prob", genplot = FALSE)
+            } else {
+              NULL
+            }
+          }
         ),
-        assignment_df = pmap(list(prob, quant_68, quant_95), \(p, q68, q95) {
-          as.data.frame(p, xy = TRUE) %>%
-            bind_cols(
-              as.data.frame(q68),
-              as.data.frame(q95),
-              .name_repair = "minimal"
-            )
+        assignment_df = pmap(
+          list(prob, quant_68, quant_95, prob_fail),
+          \(p, q68, q95, run) {
+            if (!run) {
+              as.data.frame(p, xy = TRUE) %>%
+                bind_cols(
+                  as.data.frame(q68),
+                  as.data.frame(q95),
+                  .name_repair = "minimal"
+                )
+            } else {
+              NULL
+            }
+          }
+        ),
+        accuracy_68 = pmap_lgl(
+          list(quant_68, location, prob_fail),
+          \(quant, loc, run) {
+            if (!run) {
+              terra::extract(quant, loc)[[2]]
+            } else {
+              NA
+            }
+          }
+        ),
+        accuracy_95 = pmap_lgl(
+          list(quant_95, location, prob_fail),
+          \(quant, loc, run) {
+            if (!run) {
+              terra::extract(quant, loc)[[2]]
+            } else {
+              NA
+            }
+          }
+        ),
+        area_68_count = map2_int(quant_68, prob_fail, \(quant, run) {
+          if (!run) {
+            sum(values(quant), na.rm = TRUE)
+          } else {
+            NA_integer_
+          }
         }),
-        accuracy_68 = map2_lgl(
+        area_95_count = map2_int(quant_95, prob_fail, \(quant, run) {
+          if (!run) {
+            sum(values(quant), na.rm = TRUE)
+          } else {
+            NA_integer_
+          }
+        }),
+        precision_68 = map2_dbl(
           quant_68,
-          location,
-          ~ terra::extract(.x, .y)[[2]]
+          prob_fail,
+          \(quant, run) {
+            if (!run) {
+              (1 - mean(values(quant), na.rm = TRUE)) * 100
+            } else {
+              NA
+            }
+          }
         ),
-        accuracy_95 = map2_lgl(
+        precision_95 = map2_dbl(
           quant_95,
-          location,
-          ~ terra::extract(.x, .y)[[2]]
-        ),
-        area_68_count = map_int(quant_68, ~ sum(values(.x), na.rm = TRUE)),
-        area_95_count = map_int(quant_95, ~ sum(values(.x), na.rm = TRUE)),
-        precision_68 = map_dbl(
-          quant_68,
-          ~ (1 - mean(values(.x), na.rm = TRUE)) * 100
-        ),
-        precision_95 = map_dbl(
-          quant_95,
-          ~ (1 - mean(values(.x), na.rm = TRUE)) * 100
+          prob_fail,
+          \(quant, run) {
+            if (!run) {
+              (1 - mean(values(quant), na.rm = TRUE)) * 100
+            } else {
+              NA
+            }
+          }
         )
       ) %>%
       select(
         type,
         correlation,
+        prob_fail,
         assignment_df,
         starts_with("accuracy"),
         starts_with("area"),
@@ -135,14 +194,14 @@ assign_multi_chron <- function(site) {
   }
 
   assign_out <- assign %>% unnest("results")
-  
+
   saveRDS(assign_out, path_out)
   invisible(path_out)
 }
 
 
 # PERFMORM ASSIGNMENTS----------------------------------------------------------
-plan(multisession, workers = 9)
+plan(multisession, workers = 10)
 
 future_pmap(
   list(sites$site_code),
