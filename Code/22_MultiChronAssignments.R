@@ -16,6 +16,8 @@ assign_multi_chron <- function(site) {
   path_in <- paste0("Outputs/LOOCV_Predictions/", site, "_ars.Rdata")
   path_out <- paste0("Outputs/LOOCV_MultiChronAssignments/", site, ".Rdata")
 
+  map_site <- site
+
   # check for and skip finished sites so the run can be resumed
   if (file.exists(path_out)) {
     return(invisible(path_out))
@@ -30,11 +32,10 @@ assign_multi_chron <- function(site) {
 
   for (i in 1:nrow(assign)) {
     # set parameters
-    map_site <- assign$map_site[i]
     test_site <- assign$test_site[i]
     model <- assign$model[i]
 
-    # load rasters and name layers
+    # check rasters exist, load and name layers
     rast_paths <- sprintf(
       "Outputs/LOOCV_Rasters/%s/%s_%sexcl_%s_%s.tif",
       map_site,
@@ -43,15 +44,26 @@ assign_multi_chron <- function(site) {
       c("ars", "res", "std"),
       model
     )
+
+    files_exist <- file.exists(rast_paths)
+
+    if (sum(files_exist) < 2) {
+      next
+    }
+
+    rast_paths <- rast_paths[files_exist]
+
     rast <- terra::rast(rast_paths)
+    chrons <- str_extract(sources(rast), "ars|res|std")
     names(rast) <- paste(
       c("pred", "se"),
-      rep(c("ars", "res", "std"), each = 2),
+      rep(chrons, each = 2),
       sep = "_"
     )
 
     # select relevant pairwise correlations
     site_cor <- pairwise_cor %>%
+      filter(type %in% chrons) %>%
       filter(
         (site_1 == map_site & site_2 == test_site) |
           (site_1 == test_site & site_2 == map_site)
@@ -59,7 +71,9 @@ assign_multi_chron <- function(site) {
 
     # generate output tibble
     output <- tibble(
-      type = c("res_std", "ars_res", "ars_std", "ars_res_std")
+      type = unlist(lapply(2:length(chrons), function(k) {
+        combn(chrons, k, paste, collapse = "_")
+      }))
     ) %>%
       mutate(
         type_vect = strsplit(type, "_"),
@@ -77,7 +91,7 @@ assign_multi_chron <- function(site) {
         raster = map(
           type_vect,
           ~ rast[[grepl(paste(.x, collapse = "|"), names(rast))]] %>%
-            split(., sub(".*_", "", names(.))) %>%
+            split(., sub(".*_", "", rep(.x, each = 2))) %>%
             isoStack()
         ),
         prob = map2(
